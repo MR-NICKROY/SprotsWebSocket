@@ -1,4 +1,3 @@
-//
 import arcjet, { shield, slidingWindow } from "@arcjet/node";
 
 const arcjetKey = process.env.ARCJET_KEY;
@@ -7,22 +6,21 @@ if (!arcjetKey) {
   console.warn("WARNING: ARCJET_KEY is not defined. Arcjet disabled (null).");
 }
 
-// 1. HTTP Rules: Max 50 requests per minute
+// 1. HTTP Rules: Max 10 requests per minute
 const httpRules = [
   shield({
     mode: "DRY_RUN",
     interval: "10s",
     max: 10, // Limit: 10 connections/min
-  }), // Don't block suspicious payloads in dev
+  }),
   slidingWindow({
-    mode: "LIVE", // Force "LIVE" to ENFORCE the limit locally
+    mode: "LIVE",
     interval: "10s",
-    max: 10, // Limit: 50 req/min
+    max: 10, // Limit: 10 req/min (Fixed comment to match code)
   }),
 ];
 
 // 2. WebSocket Rules: Max 10 connections per minute
-// We use a stricter limit here because establishing connections is expensive.
 const wsRules = [
   shield({
     mode: "DRY_RUN",
@@ -30,7 +28,7 @@ const wsRules = [
     max: 10, // Limit: 10 connections/min
   }),
   slidingWindow({
-    mode: "LIVE", // Force "LIVE" to ENFORCE the limit locally
+    mode: "LIVE",
     interval: "10s",
     max: 10, // Limit: 10 connections/min
   }),

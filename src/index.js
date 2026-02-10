@@ -3,6 +3,7 @@ import http from "http";
 import { matchRouter } from "./routes/matches.js";
 import { attachWebSocketServer } from "./ws/server.js";
 import { securityMiddleware } from "./arcjet.js";
+import { commentaryRouter } from "./routes/commentary.js";
 const PORT = Number(process.env.PORT) || 8000;
 const HOST = process.env.HOST || "0.0.0.0";
 const app = express();
@@ -11,20 +12,23 @@ const server = http.createServer(app);
 // Middleware to parse JSON bodies
 app.use(express.json());
 
+// Security middleware (rate limiting)
+app.use(securityMiddleware());
+
 // Root GET route
 app.get("/", (req, res) => {
   res.send("Server is up and running!");
 });
 // Import and use security middleware
 
-app.use(securityMiddleware());
 // Mount match router
 app.use("/matches", matchRouter);
-// Import and attach WebSocket server
-// Assume attachWebSocketServer is defined in src/ws/server.js
+app.use("/matches/:id/commentary", commentaryRouter);
 
-const { broadcastMatchCreated } = attachWebSocketServer(server);
+const { broadcastMatchCreated, broadcastToCommentary } =
+  attachWebSocketServer(server);
 app.locals.broadcastMatchCreated = broadcastMatchCreated;
+app.locals.broadcastToCommentary = broadcastToCommentary;
 // Start the server and log the URL
 server.listen(PORT, HOST, () => {
   const baseUrl =

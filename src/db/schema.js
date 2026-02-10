@@ -12,3 +12,21 @@ export const matches = pgTable("matches", {
   status: text("status").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+export const commentary = pgTable("commentary", {
+  id: serial("id").primaryKey(),
+  // FIXED: Added Foreign Key reference to matches table
+  matchId: integer("match_id")
+    .notNull()
+    .references(() => matches.id),
+  minute: integer("minute").notNull(),
+  sequence: integer("sequence").notNull(),
+  period: text("period").notNull(),
+  eventType: text("event_type").notNull(),
+  actor: text("actor"),
+  team: text("team"),
+  message: text("message").notNull(),
+  metadata: text("metadata").default("{}").notNull(),
+  tags: text("tags").default("[]").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
